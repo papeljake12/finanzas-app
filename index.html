@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Finanzas">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>Mis finanzas</title>
+</head>
+<body>
+
+  <!-- Pantalla de conexión: sale la primera vez o si la clave falla -->
+  <section id="conexion" class="pantalla" hidden>
+    <div class="conexion-caja">
+      <h1>Mis finanzas</h1>
+      <p class="suave">Conecta la app con tu hoja. Estos datos se guardan solo en este celular.</p>
+      <form id="form-conexion" autocomplete="off">
+        <label for="campo-url">Dirección del puente</label>
+        <input id="campo-url" type="url" inputmode="url" autocapitalize="off" autocorrect="off"
+               spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec" required>
+        <label for="campo-clave">Clave</label>
+        <input id="campo-clave" type="password" autocapitalize="off" autocorrect="off"
+               spellcheck="false" autocomplete="off" required>
+        <p id="conexion-error" class="error" role="alert" hidden></p>
+        <button id="btn-conectar" class="boton principal" type="submit">Probar y conectar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- App -->
+  <div id="app" hidden>
+    <main>
+      <div class="arriba">
+        <div class="mes">
+          <button id="mes-antes" class="icono" type="button" aria-label="Mes anterior">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6"/></svg>
+          </button>
+          <p id="mes-nombre" class="mes-nombre"></p>
+          <button id="mes-despues" class="icono" type="button" aria-label="Mes siguiente">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m10 6 6 6-6 6"/></svg>
+          </button>
+        </div>
+        <button id="btn-actualizar" class="icono borde" type="button" aria-label="Actualizar">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+        </button>
+      </div>
+
+      <section class="saldo-caja" aria-live="polite">
+        <p class="saldo-titulo">Saldo</p>
+        <p id="saldo" class="saldo">—</p>
+        <p id="saldo-pie" class="saldo-pie"></p>
+      </section>
+
+      <div id="avisos"></div>
+
+      <section id="vista-resumen">
+        <div class="totales">
+          <div class="total">
+            <p class="total-titulo ingreso">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M17 7 7 17M7 9v8h8"/></svg>Ingresos
+            </p>
+            <p id="total-ingresos" class="total-valor">—</p>
+          </div>
+          <div class="total">
+            <p class="total-titulo gasto">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>Gastos
+            </p>
+            <p id="total-gastos" class="total-valor">—</p>
+          </div>
+        </div>
+        <div id="balance" class="balance" role="img" hidden>
+          <span id="balance-ingresos" class="balance-ingresos"></span>
+          <span id="balance-gastos" class="balance-gastos"></span>
+        </div>
+        <p id="balance-texto" class="suave balance-texto" hidden></p>
+
+        <h2>Gastos por categoría</h2>
+        <div id="dona-caja" class="dona-caja">
+          <div id="dona" class="dona"></div>
+          <div class="dona-centro">
+            <span class="dona-titulo">Gastos</span>
+            <span id="dona-total" class="dona-total"></span>
+          </div>
+        </div>
+        <ul id="lista-categorias" class="cats"></ul>
+        <p id="sin-gastos" class="vacio" hidden>No hay gastos en este mes.</p>
+
+        <div id="dias-caja">
+          <h2>Gastos por día</h2>
+          <div id="grafica-dias" class="dias"></div>
+          <p id="dias-texto" class="suave"></p>
+        </div>
+
+        <div class="titulo-fila">
+          <h2>Últimos movimientos</h2>
+          <button id="ver-todos" class="enlace" type="button">Ver todos</button>
+        </div>
+        <ul id="ultimos" class="filas"></ul>
+        <p id="sin-ultimos" class="vacio" hidden>Todavía no hay movimientos en este mes.</p>
+      </section>
+
+      <section id="vista-movimientos" hidden>
+        <div id="filtros" class="chips" role="group" aria-label="Filtrar movimientos">
+          <button class="chip elegido" type="button" data-filtro="todos" aria-pressed="true">Todos</button>
+          <button class="chip" type="button" data-filtro="sin" aria-pressed="false">Sin categoría</button>
+          <button class="chip" type="button" data-filtro="revisar" aria-pressed="false">Por revisar</button>
+        </div>
+        <div id="lista-movimientos"></div>
+        <p id="sin-movimientos" class="vacio" hidden>No hay movimientos para mostrar.</p>
+      </section>
+    </main>
+
+    <nav class="pestanas" aria-label="Secciones">
+      <button id="tab-resumen" class="pestana activa" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></svg>Inicio
+      </button>
+      <button id="tab-movimientos" class="pestana" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01"/></svg>Movimientos
+      </button>
+      <button id="btn-ajustes" class="pestana" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Ajustes
+      </button>
+    </nav>
+  </div>
+
+  <!-- Elegir categoría -->
+  <dialog id="dlg-categoria" class="hoja">
+    <form id="form-categoria" method="dialog">
+      <h2 id="cat-titulo">Categoría</h2>
+      <p id="cat-detalle" class="suave"></p>
+      <div id="cat-opciones" class="chips" role="radiogroup" aria-label="Categorías"></div>
+      <label for="cat-nueva">O crea una nueva</label>
+      <input id="cat-nueva" type="text" maxlength="30" autocomplete="off" placeholder="Por ejemplo: Transporte">
+      <label class="casilla">
+        <input id="cat-recordar" type="checkbox" checked>
+        <span>Recordar para este comercio o persona</span>
+      </label>
+      <p id="cat-error" class="error" role="alert" hidden></p>
+      <div class="acciones">
+        <button id="cat-cancelar" class="boton" type="button">Cancelar</button>
+        <button id="cat-guardar" class="boton principal" type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Texto de un correo por revisar -->
+  <dialog id="dlg-texto" class="hoja">
+    <h2>Correo por revisar</h2>
+    <p class="suave">El robot no entendió este correo, así que no cambió el saldo. Este es el texto:</p>
+    <p id="texto-correo" class="texto-correo"></p>
+    <div class="acciones">
+      <button id="texto-cerrar" class="boton principal" type="button">Cerrar</button>
+    </div>
+  </dialog>
+
+  <!-- Ajustes -->
+  <dialog id="dlg-ajustes" class="hoja">
+    <h2>Ajustes</h2>
+
+    <h3>Ajustar saldo</h3>
+    <p class="suave">Escribe el saldo que muestra la app de Bancolombia. Se crea un movimiento por la diferencia.</p>
+    <form id="form-ajuste" autocomplete="off">
+      <label for="ajuste-saldo">Saldo real</label>
+      <input id="ajuste-saldo" type="text" inputmode="numeric" placeholder="Por ejemplo 1250000">
+      <label for="ajuste-nota">Nota (opcional)</label>
+      <input id="ajuste-nota" type="text" maxlength="200" placeholder="Por ejemplo: intereses del CDT">
+      <p id="ajuste-diferencia" class="suave" hidden></p>
+      <p id="ajuste-error" class="error" role="alert" hidden></p>
+      <button id="ajuste-guardar" class="boton principal" type="submit">Ajustar saldo</button>
+    </form>
+
+    <h3>Exportar</h3>
+    <button id="btn-exportar" class="boton" type="button">Exportar el mes a Excel (CSV)</button>
+
+    <h3>Conexión</h3>
+    <p id="estado-conexion" class="suave"></p>
+    <button id="btn-desconectar" class="boton peligro" type="button">Desconectar este celular</button>
+
+    <div class="acciones">
+      <button id="ajustes-cerrar" class="boton principal" type="button">Cerrar</button>
+    </div>
+  </dialog>
+
+  <div id="aviso-flotante" class="flotante" role="status" hidden></div>
+
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
