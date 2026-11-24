@@ -18,6 +18,8 @@
     nomina: 'Nómina',
     pago_recibido: 'Pago recibido',
     consignacion: 'Consignación',
+    pago_pse: 'Pago PSE',
+    pago_proveedor: 'Pago de proveedor',
     ajuste: 'Ajuste de saldo',
     desconocido: 'Correo sin entender'
   };

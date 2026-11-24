@@ -3,7 +3,7 @@
  * Nunca guarda respuestas del puente: los datos se piden siempre frescos.
  * Al cambiar cualquier archivo de la app, sube el número de VERSION.
  */
-var VERSION = 'finanzas-v2';
+var VERSION = 'finanzas-v3';
 var ARCHIVOS = [
   './',
   './index.html',
